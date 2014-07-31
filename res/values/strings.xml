@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fake ID fix</string>
+    <string name="app_mod_summary">Patch the system against the Fake ID vulnerability (bug 13678484)</string>
+
+    <string name="about_title">Android vulnerability fix</string>
+    <string name="about_author">By <a href="mailto:Tungstwenty@gmail.com">Tungstwenty</a> @ <a href="http://forum.xda-developers.com/member.php?u=4322181">XDA Developers</a></string>
+    <string name="about_description">This patch fixes the Fake ID vulnerability (bug 13678484).\n\nThe bug allows malicious apps to pretend to be signed by trusted providers and be loaded as extensions
+in several contexts, such as NFC access, browser plugins and others, depending on the device and which extension
+mechanisms the manufacturer chose to include.
+\n
+\nA great explanation of the implications and why the problem occurs can be found on <a href="http://bluebox.com/technical/android-fake-id-vulnerability/">this article</a> by
+Jeff Forristal from Bluebox.
+\n\nFor any questions, please visit <a href="http://forum.xda-developers.com/xposed/modules/mod-fakeid-vulnerability-fix-t2833854">this thread</a>.</string>
+    <string name="about_noconfigs">This appliction does not have any configurations.
+It is an Xposed mod that should be enabled on its framework manager to produce effects!</string>
+    <string name="about_active">The patch is active. You should be protected from
+this vulnerability.</string>
+    <string name="about_notactive"><b>Note</b>: The patch is not active! Verify that the
+<a href="http://forum.xda-developers.com/xposed/xposed-installer-versions-changelog-t2714053">Xposed framework</a> is running properly
+and that this module is enabled. If so, check the Xposed logs for any errors.</string>
+</resources>
