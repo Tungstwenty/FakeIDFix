@@ -1,0 +1,24 @@
+Fake ID fix
+by Tungstwenty
+
+
+Fixes the Fake ID vulnerability (bug 13678484).
+It allows malicious apps to pretend to be signed from certain trusted providers and be loaded as
+supposedly authorized extensions in certain contexts (e.g. NFC management, web plugins from Adobe, etc.)
+
+There is one AOSP commit (https://android.googlesource.com/platform/libcore/+/2bc5e811a817a8c667bca4318ae98582b0ee6dc6)
+addressing this, by allowing a more rigorous check of the existing signatures on APKs.
+However, due to compatibility problems, Google chose not to use that strict mode in all situations.
+This patch enforces the strict validation only when the PM system service is grabbing the signatures as a result
+of getPackageInfo() with the GET_SIGNATURES flag, which covers all the known vulnerable vectors such as NFC.
+
+A great explanation of the implications of the bug and how it all works can be found on this article
+by Jeff Forristal from Bluebox: http://bluebox.com/technical/android-fake-id-vulnerability/
+
+Follow this thread for additional info: http://forum.xda-developers.com/xposed/modules/mod-fakeid-vulnerability-fix-t2833854
+
+This project uses:
+- Xposed framework, by rovo89
+- Original code snippets from AOSP
+- Icons generated with Android Asset Studio: http://android-ui-utils.googlecode.com/hg/asset-studio/dist/index.html
+
