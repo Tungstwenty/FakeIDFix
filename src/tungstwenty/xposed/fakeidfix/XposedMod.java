@@ -19,25 +19,23 @@ public class XposedMod implements IXposedHookZygoteInit, IXposedHookLoadPackage 
 	private static final String THIS_PACKAGE = XposedMod.class.getPackage().getName();
 	private static final String BLUEBOX_PACKAGE = "com.bluebox.labs.onerootscanner";
 
-	private static boolean hookSuccessful = false;
+	private static boolean romAlreadyFixed = false;
+	private static boolean hooksInstalled = false;
 
 	private static final ThreadLocal<Object> insideCollectCertificates = new ThreadLocal<Object>();
 
 	@Override
 	public void initZygote(StartupParam startupParam) throws Throwable {
 
-		boolean romAlreadyFixed;
 		try {
+			// Check for the presence of the fixed method signature
 			XposedHelpers.findMethodExact("org.apache.harmony.security.utils.JarUtils", null, "createChain",
 			    X509Certificate.class, X509Certificate[].class, boolean.class);
+			// No need to install the hooks, ROM already includes the fix
 			romAlreadyFixed = true;
-		} catch (Throwable t) {
-			romAlreadyFixed = false;
-		}
-
-		if (romAlreadyFixed) {
-			hookSuccessful = true;
 			return;
+
+		} catch (Throwable t) {
 		}
 
 		findAndHookMethod("org.apache.harmony.security.utils.JarUtils", null, "createChain", X509Certificate.class,
@@ -74,8 +72,8 @@ public class XposedMod implements IXposedHookZygoteInit, IXposedHookLoadPackage 
 			    }
 		    });
 
-		// All hooks installed successfully
-		hookSuccessful = true;
+		// No errors occurred while installing the hooks
+		hooksInstalled = true;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -125,19 +123,15 @@ public class XposedMod implements IXposedHookZygoteInit, IXposedHookLoadPackage 
 
 	@Override
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
-		if (!hookSuccessful) {
-			// Hooks not installed, don't report success to the activity nor the Bluebox scanner
-			return;
-		}
-
-		if (THIS_PACKAGE.equals(lpparam.packageName)) {
+		// Report "green" status if the module installed the hooks successfully OR if it wasn't needed
+		if (THIS_PACKAGE.equals(lpparam.packageName) && (hooksInstalled || romAlreadyFixed)) {
 			findAndHookMethod(XposedModActivity.class.getName(), lpparam.classLoader, "isActive",
 			    XC_MethodReplacement.returnConstant(true));
 		}
 
-		if (BLUEBOX_PACKAGE.equals(lpparam.packageName)) {
-			// Change the reported "createChain" method signature to Bluebox Security Scanner so it marks the bug as
-			// fixed
+		// Affect Bluebox Security Scanner detection only if the module is active and the ROM wasn't already fixed
+		if (BLUEBOX_PACKAGE.equals(lpparam.packageName) && !romAlreadyFixed && hooksInstalled) {
+			// Change the reported "createChain" method signature to include the 3rd parameter on the official AOSP correction
 			findAndHookMethod(Method.class, "getParameterTypes", new XC_MethodHook() {
 				@Override
 				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
