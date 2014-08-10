@@ -7,6 +7,7 @@ import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.LinkedList;
 
+import android.app.AndroidAppHelper;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
@@ -63,7 +64,10 @@ public class XposedMod implements IXposedHookZygoteInit, IXposedHookLoadPackage 
 		    "android.content.pm.PackageParser$Package", int.class, new XC_MethodHook() {
 			    @Override
 			    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-				    insideCollectCertificates.set("dummy");
+				    // Only apply the fixed method for system services
+				    if ("android".equals(AndroidAppHelper.currentPackageName())) {
+					    insideCollectCertificates.set("dummy");
+				    }
 			    }
 
 			    @Override
